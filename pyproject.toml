@@ -1,0 +1,16 @@
+[project]
+name = "coder_bot"
+version = "0.1.0"
+requires-python = ">=3.11,<3.15"
+dependencies = [
+    "langchain",
+    "langchain-community",
+    "langchain-chroma",
+    "langchain-openai",
+    "langchain-text-splitters",
+    "langchain-huggingface>=1.2.3",
+    "sentence-transformers>=6.2.0",
+    "langchain-huggingface", 
+    "sentence-transformers",
+    "pandas"
+]

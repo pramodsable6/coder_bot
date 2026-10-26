@@ -1,8 +1,10 @@
 # Coder Bot
 
-A small Python prototype for semantic code search. It splits source files into
-language-aware chunks, creates embeddings with Microsoft's UniXcoder model, and
-stores them in a persistent Chroma vector database.
+A small Python RAG prototype for coding questions about a source codebase. It
+splits source files into language-aware chunks, creates embeddings with
+Microsoft's UniXcoder model, and stores them in a persistent Chroma vector
+database. For each question, it retrieves relevant code and passes that context
+to a local Ollama language model, which generates a natural-language answer.
 
 ## Requirements
 
@@ -36,12 +38,18 @@ uv run python create_embeddings.py
 Supported file types are Python, JavaScript, TypeScript, Go, C++, Java, and
 Markdown. The generated vector database is stored in `./chroma_db`.
 
-## Search the index
+## Ask coding questions
 
 Install and start [Ollama](https://ollama.com/), then download a coding model:
 
 ```bash
 ollama pull qwen2.5-coder:7b
+```
+
+If Ollama is not already running as a service, start it in another terminal:
+
+```bash
+ollama serve
 ```
 
 After building the index and ensuring the Ollama service is running, start the
@@ -51,12 +59,16 @@ interactive query loop:
 uv run python query_embeddings.py
 ```
 
-Enter coding questions about the indexed codebase; type `exit` or `quit` to
-stop. Each answer uses the four most relevant code chunks retrieved from Chroma
-and includes source paths for context.
+Enter a coding question about the indexed codebase; type `exit` or `quit` to
+stop. The app embeds the question, retrieves the four most relevant chunks from
+Chroma, and sends them with the question to Ollama. The LLM uses this retrieved
+context to generate an answer and is instructed not to invent codebase details;
+it should say when the retrieved context is insufficient. Retrieved context,
+including source paths, is printed before the generated answer.
 
-The default model is `qwen2.5-coder:7b`. Override it or the Ollama server URL
-with environment variables (these can also be set in `.env`):
+The default answer-generation model is `qwen2.5-coder:7b`. Override the model
+or Ollama server URL with environment variables (these can also be set in
+`.env`):
 
 ```bash
 OLLAMA_MODEL=your-model

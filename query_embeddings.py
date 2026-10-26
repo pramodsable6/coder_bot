@@ -1,5 +1,6 @@
 import os
 
+import httpx
 from langchain_chroma import Chroma
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
@@ -10,9 +11,10 @@ from langchain_ollama import ChatOllama
 load_dotenv()
 
 embedding_model = HuggingFaceEmbeddings(model_name="microsoft/unixcoder-base")
+ollama_base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
 llm = ChatOllama(
     model=os.getenv("OLLAMA_MODEL", "qwen2.5-coder:7b"),
-    base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
+    base_url=ollama_base_url,
     temperature=0,
 )
 
@@ -43,7 +45,17 @@ def answer_question(question: str) -> None:
         f"Source: {doc.metadata.get('source', 'unknown')}\n{doc.page_content}"
         for doc in results
     )
-    answer = answer_chain.invoke({"question": question, "context": context})
+    print("CONTEXT:\n" + context)
+    
+    try:
+        answer = answer_chain.invoke({"question": question, "context": context})
+    except httpx.ConnectError:
+        print(
+            f"\nCannot connect to Ollama at {ollama_base_url}. "
+            "Install and start Ollama, then retry. On Linux, run "
+            "`ollama serve` in another terminal."
+        )
+        return
     print(f"\n{answer}\n")
 
 

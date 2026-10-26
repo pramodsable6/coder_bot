@@ -10,7 +10,8 @@ dependencies = [
     "langchain-text-splitters",
     "langchain-huggingface>=1.2.3",
     "sentence-transformers>=6.2.0",
-    "langchain-huggingface", 
+    "langchain-huggingface",
     "sentence-transformers",
-    "pandas"
+    "pandas",
+    "langchain-ollama>=1.1.0",
 ]
